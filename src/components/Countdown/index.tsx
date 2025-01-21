@@ -16,7 +16,6 @@ const Countdown = () => {
   const [showLuckyDraw, setShowLuckyDraw] = useState(false);
 
   useEffect(() => {
-
     const calculateTimeLeft = () => {
       const lunarNewYear = new Date(TimeConstants.NEW_LUNAR_YEAR).getTime();
       const now = new Date().getTime();
@@ -52,14 +51,14 @@ const Countdown = () => {
 
     return () => clearInterval(timer);
   }, []);
-  const { setUserInfo, userInfo } = useUser();
+  const { setUserInfo } = useUser();
 
   useEffect(() => {
-    window.Mezon.WebView?.postEvent('PING', 'Ping', () => {
+    window.Mezon?.WebView?.postEvent('PING', 'Ping', () => {
       console.log('Hello Mezon!');
     });
 
-    window.Mezon.WebView?.onEvent<{ user: IUser; wallet: string }>(
+    window.Mezon?.WebView?.onEvent<{ user: IUser; wallet: string }>(
       'CURRENT_USER_INFO',
       (_, userData) => {
         if (!userData || !userData.user) {
@@ -85,11 +84,11 @@ const Countdown = () => {
   );
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-red-500 rounded-xl shadow-lg p-8">
+    <div className="lg:w-full lg:max-w-3xl mx-auto bg-red-500 rounded-xl shadow-lg p-4 lg:p-8">
       <h1 className="text-center text-white font-bold text-2xl mb-8">
         {showLuckyDraw
           ? '🎊 Chúc Mừng Năm Mới 2025! 🎊'
-          : 'Đếm ngược nhận lì xìiiii'}
+          : 'Đếm ngược nhận lì xì cùng NCC'}
       </h1>
 
       {!showLuckyDraw && (

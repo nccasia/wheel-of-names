@@ -49,7 +49,7 @@ const DistiquesRouges = ({ text }: Prop) => {
               return (
                 <h1
                   key={index}
-                  className="lg:text-4xl font-bold text-red-800 mb-8 text-xl"
+                  className="lg:text-4xl font-bold text-red-800 mb-8 text-xl font-titanone"
                 >
                   {item}
                 </h1>

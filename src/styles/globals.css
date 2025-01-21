@@ -17,3 +17,9 @@
         /* Firefox */
     }
 }
+@font-face {
+    font-family: 'Thuphap';
+    src: url('/fonts/Thu-phap-Cong-thuy.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }

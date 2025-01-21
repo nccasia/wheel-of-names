@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head>
-        <script async src="/mezon-sdk.js"></script>
+        <script defer src="/mezon-sdk.js"></script>
       </head>
       <body
         className={clsx(
