@@ -25,6 +25,7 @@ import { useAsyncList } from "@react-stately/data";
 import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { IoMdArrowRoundDown } from 'react-icons/io';
 
 const HistorySpin = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -114,10 +115,13 @@ const HistorySpin = () => {
                     (
                       <Button
                         onPress={historyList.loadMore}
-                        color="primary"
+                        color="secondary"
+                        isIconOnly
+                        radius='full'
+                        variant='flat'
                         className="absolute bottom-0 left-1/2 -translate-x-1/2"
                       >
-                        Tải thêm
+                      <IoMdArrowRoundDown />
                       </Button>
                     )
                 }
