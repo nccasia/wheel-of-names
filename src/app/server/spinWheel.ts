@@ -73,12 +73,11 @@ const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    appId: process.env.BOT_APP_ID!,
-                    apiKey: process.env.BOT_API_KEY!
+                    "X-Secret-Key": process.env.SEND_TOKEN_KEY!
                 },
                 body: JSON.stringify({
                     sessionId: newSpin.id,
-                    userRewardedList: [
+                    userReceiverList: [
                         {
                             userId: currentUser.userId,
                             amount: reward.value
