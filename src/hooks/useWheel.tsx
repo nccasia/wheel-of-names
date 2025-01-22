@@ -69,12 +69,12 @@ export const useWheel = (
       setIsSpinning(true);
       setCurrentWinner(null);
 
-      const res: ActionResponse = await spinWheelAsync(userInfo!);
-      if (res.data) {
-        wheelRef.current.spinToItem(res.data.index, 5000, true, 8, 1);
-      } else {
-        toast.warning(res.message);
-      }
+      // const res: ActionResponse = await spinWheelAsync(userInfo!);
+      // if (res.data) {
+      //   wheelRef.current.spinToItem(res.data.index, 5000, true, 8, 1);
+      // } else {
+      //   toast.warning(res.message);
+      // }
     } catch (error) {
       console.log(error);
     }

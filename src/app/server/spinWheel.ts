@@ -3,10 +3,12 @@
 import { GameRewards } from "@/constants/gameRewards";
 import { checkNewYear } from "@/helpers";
 import { prisma } from "@/libs/prisma";
-import { ActionResponse, SpinResult, User } from "@/types";
+import { ActionResponse, MezonUser, SpinResult, User } from "@/types";
 import { StatusCodes } from "http-status-codes";
+import { getMezonUserAsync, verifyUserRoleAsync } from "./auth";
+import { TimeConstants } from "@/constants/timeConstants";
 
-const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
+const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> => {
     try {
         if (!checkNewYear()) {
             return {
@@ -14,15 +16,23 @@ const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
                 message: "You can only spin the wheel after the Lunar New Year"
             }
         }
-        if (!spine) {
+        const res = await getMezonUserAsync(accessToken);
+        if (res.statusCodes !== StatusCodes.OK) {
+            return res;
+        }
+        const isValidRole = await verifyUserRoleAsync(accessToken);
+        if (!isValidRole) {
             return {
-                statusCodes: StatusCodes.BAD_REQUEST,
-                message: "You must login to Mezon to spin the wheel"
+                statusCodes: StatusCodes.FORBIDDEN,
+                message: "You do not have the required role to spin the wheel"
             }
         }
+        
+        const mezonUser = res.data as MezonUser;
+
         const isSpined = await prisma.spinHistory.findFirst({
             where: {
-                userId: spine.id
+                userId: mezonUser.user.id
             }
         });
         if (isSpined) {
@@ -37,14 +47,19 @@ const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
             reward: GameRewards[randomIndex],
             index: randomIndex
         };
-      
         await prisma.spinHistory.create({
             data: {
-                userId: spine.id,
-                userName: spine.userName,
+                userId: mezonUser.user.id,
+                userName: mezonUser.user.username,
                 rewardValue: Number(spinResult.reward?.value) || 0,
             }
         });
+
+        setTimeout(() => {
+            const reward = GameRewards[randomIndex];
+            // TODO: CALL KOMU BOT TO SEND TOKEN TO USER
+        }, TimeConstants.SPIN_TIME);
+
         return {
             statusCodes: StatusCodes.OK,
             message: "You have successfully spinned the wheel",
@@ -92,6 +107,6 @@ const getSpinHistoryAsync = async (currentCursor?: string): Promise<ActionRespon
     }
 }
 export {
-    getSpinHistoryAsync, spinWheelAsync
+    getSpinHistoryAsync, spinWheelAsync,
 };
 

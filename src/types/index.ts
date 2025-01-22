@@ -63,3 +63,24 @@ export interface History {
   rewardValue: number;
   spinTime: Date;
 }
+
+
+export interface MezonUser {
+  user: BaseInfo
+  wallet: string
+  email: string
+}
+
+export interface BaseInfo {
+  id: string
+  username: string
+  display_name: string
+  avatar_url: string
+  lang_tag: string
+  metadata: string
+  google_id: string
+  online: boolean
+  create_time: string
+  update_time: string
+}
+
