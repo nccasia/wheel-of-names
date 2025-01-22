@@ -21,7 +21,7 @@ export const WheelComponent: React.FC = () => {
     }
   }, [currentWinner]);
   const { userInfo } = useUser();
-
+  console.log(userInfo);
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
   return (
