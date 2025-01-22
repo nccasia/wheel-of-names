@@ -1,10 +1,7 @@
+'use client';
+
 import Countdown from '@/components/Countdown';
 import FatherCountdown from '@/components/FatherCountdown';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Đếm ngược xuân Ất Tỵ 2025',
-};
 
 export default function CountDownPage() {
   return (
