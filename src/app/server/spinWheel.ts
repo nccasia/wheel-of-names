@@ -69,7 +69,7 @@ const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
             // TODO: CALL KOMU BOT TO SEND TOKEN TO USER
             console.log("Send token to user: ", currentUser.userId);
             console.log("Send reward: ", reward);
-            fetch(`${process.env.BOT_API_URL}/payoutApplication`, {
+            fetch(`${process.env.BOT_API_URL}/sendTokenToUser`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
