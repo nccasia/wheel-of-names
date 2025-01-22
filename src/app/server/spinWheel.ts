@@ -3,12 +3,12 @@
 import { GameRewards } from "@/constants/gameRewards";
 import { checkNewYear } from "@/helpers";
 import { prisma } from "@/libs/prisma";
-import { ActionResponse, MezonUser, SpinResult, User } from "@/types";
+import { ActionResponse, SpinResult, User } from "@/types";
 import { StatusCodes } from "http-status-codes";
-import { getMezonUserAsync, verifyUserRoleAsync } from "./auth";
 import { TimeConstants } from "@/constants/timeConstants";
+import { MezonConstants } from "@/constants/mezonConstants";
 
-const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> => {
+const spinWheelAsync = async (spine: User) : Promise<ActionResponse> => {
     try {
         if (!checkNewYear()) {
             return {
@@ -16,25 +16,33 @@ const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> =>
                 message: "You can only spin the wheel after the Lunar New Year"
             }
         }
-        const res = await getMezonUserAsync(accessToken);
-        if (res.statusCodes !== StatusCodes.OK) {
-            return res;
-        }
-        const isValidRole = await verifyUserRoleAsync(accessToken);
-        if (!isValidRole) {
-            return {
-                statusCodes: StatusCodes.FORBIDDEN,
-                message: "You do not have the required role to spin the wheel"
-            }
-        }
-        
-        const mezonUser = res.data as MezonUser;
 
-        const isSpined = await prisma.spinHistory.findFirst({
+        const currentUser = await prisma.users.findFirst({
             where: {
-                userId: mezonUser.user.id
+                userId: spine.id
             }
         });
+
+        if (!currentUser) {
+            return {
+                statusCodes: StatusCodes.BAD_REQUEST,
+                message: "Please use mezon account to spin the wheel"
+            }
+        }
+
+        if (!currentUser.roles.some(role => MezonConstants.ALLOW_SPIN_ROLES.includes(role))) {
+            return {
+                statusCodes: StatusCodes.BAD_REQUEST,
+                message: "You do not have permission to spin the wheel"
+            }
+        }
+
+        const isSpined = await prisma.spinHistories.findFirst({
+            where: {
+                userId: currentUser.userId
+            }
+        });
+
         if (isSpined) {
             return {
                 statusCodes: StatusCodes.BAD_REQUEST,
@@ -47,10 +55,11 @@ const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> =>
             reward: GameRewards[randomIndex],
             index: randomIndex
         };
-        await prisma.spinHistory.create({
+
+        const newSpin = await prisma.spinHistories.create({
             data: {
-                userId: mezonUser.user.id,
-                userName: mezonUser.user.username,
+                userId: currentUser.userId,
+                userName: currentUser.userName,
                 rewardValue: Number(spinResult.reward?.value) || 0,
             }
         });
@@ -58,6 +67,26 @@ const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> =>
         setTimeout(() => {
             const reward = GameRewards[randomIndex];
             // TODO: CALL KOMU BOT TO SEND TOKEN TO USER
+            console.log("Send token to user: ", currentUser.userId);
+            console.log("Send reward: ", reward);
+            fetch(`${process.env.BOT_API_URL}/payoutApplication`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    appId: process.env.BOT_APP_ID!,
+                    apiKey: process.env.BOT_API_KEY!
+                },
+                body: JSON.stringify({
+                    sessionId: newSpin.id,
+                    userRewardedList: [
+                        {
+                            userId: currentUser.userId,
+                            amount: reward.value
+                        }
+                    ]
+                })
+            })
+
         }, TimeConstants.SPIN_TIME);
 
         return {
@@ -74,10 +103,9 @@ const spinWheelAsync = async (accessToken?: string) : Promise<ActionResponse> =>
         }
     }
 };
-
 const getSpinHistoryAsync = async (currentCursor?: string): Promise<ActionResponse> => {
     try {
-        const spinHistories = await prisma.spinHistory.findMany({
+        const spinHistories = await prisma.spinHistories.findMany({
             take: 5,
             ...(currentCursor && {
                 skip: 1, // Do not include the cursor itself in the query result.
@@ -107,6 +135,6 @@ const getSpinHistoryAsync = async (currentCursor?: string): Promise<ActionRespon
     }
 }
 export {
-    getSpinHistoryAsync, spinWheelAsync,
+    getSpinHistoryAsync, spinWheelAsync
 };
 
