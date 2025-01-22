@@ -1,12 +1,12 @@
 import Countdown from '@/components/Countdown';
+import FatherCountdown from '@/components/FatherCountdown';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Đếm ngược xuân Ất Tỵ 2025",
+  title: 'Đếm ngược xuân Ất Tỵ 2025',
 };
 
 export default function CountDownPage() {
-  
   return (
     <div
       className="flex flex-col items-center justify-center bg-cover h-screen max-w-none w-full flex-grow bg-no-repeat  gap-4 lg:gap-10"
@@ -23,6 +23,7 @@ export default function CountDownPage() {
       >
         Chúc Mừng Năm Mới
       </h1>
+      <FatherCountdown />
       <Countdown />
     </div>
   );

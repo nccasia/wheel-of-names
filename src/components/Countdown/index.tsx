@@ -51,28 +51,7 @@ const Countdown = () => {
 
     return () => clearInterval(timer);
   }, []);
-  const { setUserInfo } = useUser();
 
-  useEffect(() => {
-    window.Mezon?.WebView?.postEvent('PING', 'Ping', () => {
-      console.log('Hello Mezon!');
-    });
-
-    window.Mezon?.WebView?.onEvent<{ user: IUser; wallet: string }>(
-      'CURRENT_USER_INFO',
-      (_, userData) => {
-        if (!userData || !userData.user) {
-          return;
-        }
-        const userInfo: User = {
-          id: userData.user.id,
-          name: userData.user.display_name,
-          userName: userData.user.username,
-        };
-        setUserInfo(userInfo);
-      }
-    );
-  }, []);
 
   const TimeBox = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center bg-red-600 rounded-lg p-4 w-24">

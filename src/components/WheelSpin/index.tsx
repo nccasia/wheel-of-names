@@ -6,6 +6,8 @@ import { useWheel } from '@/hooks/useWheel';
 import { useContext, useEffect, useRef } from 'react';
 import DistiquesRouges from '../DistiquesRouges';
 import HistorySpin from '../HistorySpin';
+import { Button } from '@heroui/button';
+import { useDisclosure } from '@heroui/modal';
 
 export const WheelComponent: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -20,6 +22,8 @@ export const WheelComponent: React.FC = () => {
   }, [currentWinner]);
   const { userInfo } = useUser();
 
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+
   return (
     <>
       {userInfo ? (
@@ -28,7 +32,9 @@ export const WheelComponent: React.FC = () => {
           <div className="hidden lg:block ">
             <DistiquesRouges text="Xuân sang cội phúc sinh nhành lộc" />
           </div>
-
+          {isOpen && (
+            <HistorySpin isOpen={isOpen} onOpenChange={onOpenChange} />
+          )}
           {/* Wheel Container */}
           <div className="w-full  relative p-4">
             <div className="aspect-square w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto relative">
@@ -42,7 +48,13 @@ export const WheelComponent: React.FC = () => {
                   </div>
                 )}
                 <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                  <HistorySpin />
+                  <Button
+                    onPress={onOpen}
+                    color="primary"
+                    className="border-white border-2 text-xl"
+                  >
+                    Lịch sử
+                  </Button>
                 </div>
                 {names.length >= 1 && (
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
