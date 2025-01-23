@@ -2,14 +2,14 @@
 
 import { getSpinHistoryAsync } from '@/app/server/spinWheel';
 import { History } from '@/types';
-import { Button } from '@heroui/button';
+import { Pagination } from '@heroui/pagination';
+
 import {
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  useDisclosure,
 } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
 import {
@@ -20,12 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from '@heroui/table';
-import { useInfiniteScroll } from '@heroui/use-infinite-scroll';
-import { useAsyncList } from '@react-stately/data';
+
 import currency from 'currency.js';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { IoMdArrowRoundDown } from 'react-icons/io';
+import { useEffect, useState } from 'react';
 
 interface Prop {
   isOpen: boolean;
@@ -33,35 +31,43 @@ interface Prop {
   // onOpen: () => void;
 }
 const HistorySpin = ({ isOpen, onOpenChange }: Prop) => {
+  const [page, setPage] = useState<number>(1);
+  const [pages, setPages] = useState(0);
+  const [historyList, setHistoryList] = useState<History[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
 
-  let historyList = useAsyncList({
-    async load({ signal, cursor }) {
-      if (cursor) {
+  useEffect(() => {
+    const fetchHistoryList = async () => {
+      try {
+        const res = await getSpinHistoryAsync({
+          limit: 10,
+          page: page,
+        });
+        console.log(res);
+        if (res.data) {
+          setHistoryList(res.data.items);
+          setPages(res.data.totalPages);
+        }
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      } finally {
         setIsLoading(false);
       }
+    };
 
-      // If no cursor is available, then we're loading the first page.
-      // Otherwise, the cursor is the next URL to load, as returned from the previous page.
-      const res = await getSpinHistoryAsync(cursor);
-      let data = res?.data;
+    if (isOpen) {
+      fetchHistoryList();
+    }
+  }, [page, isOpen]);
 
-      setHasMore(data.hasNext);
-      console.log(data);
-      return {
-        items: data?.items,
-        cursor: data?.nextCursor,
-      };
-    },
-  });
-  const [loaderRef, scrollerRef] = useInfiniteScroll({
-    hasMore,
-    onLoadMore: historyList.loadMore,
-  });
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="2xl"
+        className="fixed top-[10%]"
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -71,39 +77,47 @@ const HistorySpin = ({ isOpen, onOpenChange }: Prop) => {
               <ModalBody className="relative">
                 <Table
                   aria-label="Lịch sử lì xì"
+                  classNames={{
+                    wrapper: 'min-h-[222px] h-[300px]',
+                    table: 'w-full',
+                  }}
                   removeWrapper
                   isHeaderSticky
-                  baseRef={scrollerRef}
                   bottomContent={
-                    hasMore ? (
-                      <div className="flex w-full justify-center">
-                        <Spinner ref={loaderRef} color="white" />
-                      </div>
-                    ) : null
+                    <div className="flex w-full justify-center">
+                      <Pagination
+                        isCompact
+                        showControls
+                        showShadow
+                        color="secondary"
+                        page={page}
+                        total={pages}
+                        onChange={(page) => setPage(page)}
+                      />
+                    </div>
                   }
-                  classNames={{
-                    base: 'max-h-[300px] overflow-scroll no-scrollbar',
-                    table: 'no-scrollbar',
-                  }}
                 >
                   <TableHeader>
-                    <TableColumn>Tên người dùng</TableColumn>
-                    <TableColumn>Số tiền</TableColumn>
-                    <TableColumn>Thời gian</TableColumn>
+                    <TableColumn className="w-1/3">Tên người dùng</TableColumn>
+                    <TableColumn className="w-1/3">Số tiền</TableColumn>
+                    <TableColumn className="w-1/3">Thời gian</TableColumn>
                   </TableHeader>
                   <TableBody
-                    emptyContent={'No rows to display.'}
                     isLoading={isLoading}
-                    className="no-scrollbar"
-                    items={(historyList.items as History[]) ?? []}
-                    loadingContent={<Spinner color="white" />}
+                    emptyContent={'No rows to display.'}
+                    items={(historyList as History[]) ?? []}
+                    loadingContent={
+                      <div className="w-full h-[300px] flex items-center justify-center">
+                        <Spinner color="white" />
+                      </div>
+                    }
                   >
                     {(item: History) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.userName}</TableCell>
                         <TableCell>
                           {currency(item.rewardValue ?? 0, {
-                            symbol: 'VNĐ',
+                            symbol: ' VNĐ',
                             precision: 0,
                             pattern: `#!`,
                           }).format()}
@@ -115,24 +129,8 @@ const HistorySpin = ({ isOpen, onOpenChange }: Prop) => {
                     )}
                   </TableBody>
                 </Table>
-                {hasMore && (
-                  <Button
-                    onPress={historyList.loadMore}
-                    color="secondary"
-                    isIconOnly
-                    radius="full"
-                    variant="flat"
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2"
-                  >
-                    <IoMdArrowRoundDown />
-                  </Button>
-                )}
               </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Đóng
-                </Button>
-              </ModalFooter>
+              <ModalFooter></ModalFooter>
             </>
           )}
         </ModalContent>
