@@ -1,5 +1,6 @@
 import { SVGProps } from 'react';
 import { MezonWebView } from './webview';
+import { Pagination } from '@/constants/paginationConstants';
 export declare const WebView: MezonWebView;
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -64,4 +65,7 @@ export interface History {
   spinTime: Date;
 }
 
-
+export class PaginationQuery {
+  page: number = Pagination.DEFAULT_PAGE;
+  limit: number = Pagination.DEFAULT_LIMIT;
+};

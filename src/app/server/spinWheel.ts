@@ -3,7 +3,7 @@
 import { GameRewards } from '@/constants/gameRewards';
 import { checkNewYear } from '@/helpers';
 import { prisma } from '@/libs/prisma';
-import { ActionResponse, SpinResult, User } from '@/types';
+import { ActionResponse, PaginationQuery, SpinResult, User } from '@/types';
 import { StatusCodes } from 'http-status-codes';
 import { TimeConstants } from '@/constants/timeConstants';
 import { MezonConstants } from '@/constants/mezonConstants';
@@ -104,33 +104,27 @@ const spinWheelAsync = async (spine: User): Promise<ActionResponse> => {
     };
   }
 };
-const getSpinHistoryAsync = async (
-  currentCursor?: string
-): Promise<ActionResponse> => {
+const getSpinHistoryAsync = async (query: PaginationQuery): Promise<ActionResponse> => {
   try {
+    const totalItem = await prisma.spinHistories.count();
     const spinHistories = await prisma.spinHistories.findMany({
-      take: 5,
-      ...(currentCursor && {
-        skip: 1, // Do not include the cursor itself in the query result.
-        cursor: {
-          id: currentCursor as string,
-        },
-      }),
+      take: query.limit,
+      skip: (query.page - 1) * query.limit,
       orderBy: {
-        spinTime: 'desc',
-      },
+        spinTime: 'desc'
+      }
     });
     return {
       statusCodes: StatusCodes.OK,
       data: {
+        totalItem,
+        totalPages: Math.ceil(totalItem / query.limit),
+        currentPage: query.page,
+        currentLimit: query.limit,
+        currentItems: spinHistories.length,
         items: spinHistories,
-        hasNext: spinHistories?.length > 0,
-        nextCursor:
-          spinHistories?.length > 0
-            ? spinHistories[spinHistories.length - 1].id
-            : null,
-      },
-    };
+      }
+    }
   } catch (error) {
     console.error(error);
     return {
