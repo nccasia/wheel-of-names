@@ -1,6 +1,5 @@
 'use client';
 
-import { getSpinHistoryAsync } from '@/app/server/spinWheel';
 import { History } from '@/types';
 import { Pagination } from '@heroui/pagination';
 
@@ -39,14 +38,18 @@ const HistorySpin = ({ isOpen, onOpenChange }: Prop) => {
   useEffect(() => {
     const fetchHistoryList = async () => {
       try {
-        const res = await getSpinHistoryAsync({
-          limit: 10,
-          page: page,
-        });
-        console.log(res);
-        if (res.data) {
-          setHistoryList(res.data.items);
-          setPages(res.data.totalPages);
+        const res = await fetch('/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ page, limit: 10 }),
+        })
+        const response = await res.json();
+        console.log(response);
+        if (response.data) {
+          setHistoryList(response.data.items);
+          setPages(response.data.totalPages);
         }
       } catch (error) {
         console.error('Error fetching history:', error);

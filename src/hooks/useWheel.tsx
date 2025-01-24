@@ -3,8 +3,7 @@ import { useState, useRef, useCallback, RefObject, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import { Wheel } from 'spin-wheel';
-import { ActionResponse, UseWheelReturn, WheelProps } from '../types';
-import { spinWheelAsync } from '@/app/server/spinWheel';
+import { UseWheelReturn, WheelProps } from '../types';
 import { GameRewards } from '@/constants/gameRewards';
 import { toast } from 'react-toastify';
 import { useUser } from './useUser';
@@ -75,11 +74,18 @@ export const useWheel = (
     try {
       setIsSpinning(true);
       setCurrentWinner(null);
-      const res: ActionResponse = await spinWheelAsync(finalUserInfo!);
-      if (res.data) {
-        wheelRef.current.spinToItem(res.data.index, 5000, true, 8, 1);
+      const res = await fetch('/draw', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalUserInfo),
+      });
+      const response = await res.json();
+      if (response.data) {
+        wheelRef.current.spinToItem(response.data.index, 5000, true, 8, 1);
       } else {
-        toast.warning(res.message);
+        toast.warning(response.message);
       }
     } catch (error) {
       console.log(error);
