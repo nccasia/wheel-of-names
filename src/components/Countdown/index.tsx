@@ -6,7 +6,7 @@ import { IUser, User } from '@/types';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-const Countdown = () => {
+const Countdown = ({ setIsSpinning }: any) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -81,12 +81,12 @@ const Countdown = () => {
 
       {showLuckyDraw && (
         <div className="text-center">
-          <Link
-            href={'/reward'}
+          <button
+            onClick={() => setIsSpinning(true)}
             className="inline-block bg-yellow-500 hover:bg-yellow-600 text-red-700 font-bold py-3 px-6 rounded-lg transition-colors duration-300"
           >
             Vào Nhận Lì Xì Ngay 🧧
-          </Link>
+          </button>
         </div>
       )}
     </div>
