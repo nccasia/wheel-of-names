@@ -8,6 +8,7 @@ import { spinWheelAsync } from '@/app/server/spinWheel';
 import { GameRewards } from '@/constants/gameRewards';
 import { toast } from 'react-toastify';
 import { useUser } from './useUser';
+import { getCookie } from 'cookies-next';
 
 export const useWheel = (
   containerRef: RefObject<HTMLDivElement>
@@ -63,12 +64,18 @@ export const useWheel = (
 
     wheelRef.current = new Wheel(containerRef.current, wheelProps);
   }, [names, containerRef]);
-
+  const finalUserInfo =
+    userInfo ||
+    (() => {
+      // Use cookies-next to get user info
+      const storedUserInfo = getCookie('userInfo');
+      return storedUserInfo ? JSON.parse(storedUserInfo as string) : null;
+    })();
   const spin = async () => {
     try {
       setIsSpinning(true);
       setCurrentWinner(null);
-      const res: ActionResponse = await spinWheelAsync(userInfo!);
+      const res: ActionResponse = await spinWheelAsync(finalUserInfo!);
       if (res.data) {
         wheelRef.current.spinToItem(res.data.index, 5000, true, 8, 1);
       } else {
