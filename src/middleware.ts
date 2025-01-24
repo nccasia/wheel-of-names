@@ -7,8 +7,8 @@ export function middleware(request: NextRequest) {
 
   // Clear the cookie
   res.headers.set(
-    'Set-Cookie',
-    'next-router-state-tree=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly;'
+    'next-router-state-tree',
+    ''
   );
 
   return res;
