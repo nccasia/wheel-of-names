@@ -13,11 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Users {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @unique
+  userName String
+  roles    String[]
+}
 
-model SpinHistory {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String
+model SpinHistories {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @unique
   userName    String
   rewardValue Int
-  spinTime   DateTime @default(now())
+  spinTime    DateTime @default(now())
 }

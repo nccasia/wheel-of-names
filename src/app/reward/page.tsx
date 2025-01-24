@@ -1,4 +1,4 @@
-import HistorySpin from '@/components/HistorySpin';
+'use client';
 import { WheelComponent } from '@/components/WheelSpin';
 
 export default function Home() {
