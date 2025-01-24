@@ -5,7 +5,7 @@ import Countdown from "@/components/Countdown";
 import FatherCountdown from "@/components/FatherCountdown";
 import { WheelComponent } from "@/components/WheelSpin";
 
-export default function CountDownPage() {
+export default function HomePage() {
   const [isSpinning, setIsSpinning] = useState(false);
 
   return (
