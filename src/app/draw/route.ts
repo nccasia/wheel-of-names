@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { TimeConstants } from '@/constants/timeConstants';
 import { MezonConstants } from '@/constants/mezonConstants';
 
-const spinWheelAsync = async (spine?: User): Promise<ActionResponse> => {
+const spinWheelAsync = async (spine: User): Promise<ActionResponse> => {
   // return {
   //   statusCodes: StatusCodes.BAD_REQUEST,
   //   message: 'See you next year',
